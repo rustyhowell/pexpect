@@ -4,6 +4,68 @@ History
 Releases
 --------
 
+Version 4.6
+```````````
+
+* The :meth:`.pxssh.login` method now supports an ``ssh_config`` parameter,
+  which can be used to specify a file path to an SSH config file
+  (:ghpull:`490`).
+* Improved compatability for the ``crlf`` parameter of :class:`~.PopenSpawn`
+  (:ghpull:`493`)
+* Fixed an issue in read timeout handling when using :class:`~.spawn` and
+  :class:`~.fdspawn` with the ``use_poll`` parameter (:ghpull:`492`).
+
+Version 4.5
+```````````
+
+* :class:`~.spawn` and :class:`~.fdspawn` now have a ``use_poll`` parameter.
+  If this is True, they will use :func:`select.poll` instead of :func:`select.select`.
+  ``poll()`` allows file descriptors above 1024, but it must be explicitly
+  enabled due to compatibility concerns (:ghpull:`474`).
+* The :meth:`.pxssh.login` method has several new and changed options:
+
+  * The option ``password_regex`` allows changing
+    the password prompt regex, for servers that include ``password:`` in a banner
+    before reaching a prompt (:ghpull:`468`).
+  * :meth:`~.pxssh.login` now allows for setting up SSH tunnels to be requested once
+    logged in to the remote server. This option is ``ssh_tunnels`` (:ghpull:`473`).
+    The structure should be like this::
+
+          {
+            'local': ['2424:localhost:22'],   # Local SSH tunnels
+            'remote': ['2525:localhost:22'],  # Remote SSH tunnels
+            'dynamic': [8888],                # Dynamic/SOCKS tunnels
+          }
+
+  * The option ``spawn_local_ssh=False`` allows subsequent logins from the
+    remote session and treats the session as if it was local (:ghpull:`472`).
+  * Setting ``sync_original_prompt=False`` will prevent changing the prompt to
+    something unique, in case the remote server is sensitive to new lines at login
+    (:ghpull:`468`).
+  * If ``ssh_key=True`` is passed, the SSH client forces forwarding the authentication
+    agent to the remote server instead of providing a key (:ghpull:`473`).
+
+Version 4.4
+```````````
+
+* :class:`~.PopenSpawn` now has a ``preexec_fn`` parameter, like :class:`~.spawn`
+  and :class:`subprocess.Popen`, for a function to be called in the child
+  process before executing the new command. Like in ``Popen``, this works only
+  in POSIX, and can cause issues if your application also uses threads
+  (:ghpull:`460`).
+* Significant performance improvements when processing large amounts of data
+  (:ghpull:`464`).
+* Ensure that ``spawn.closed`` gets set by :meth:`~.spawn.close`, and improve
+  an example for passing ``SIGWINCH`` through to a child process (:ghpull:`466`).
+
+Version 4.3.1
+`````````````
+
+* When launching bash for :mod:`pexpect.replwrap`, load the system ``bashrc``
+  from a couple of different common locations (:ghpull:`457`), and then unset
+  the ``PROMPT_COMMAND`` environment variable, which can interfere with the
+  prompt we're expecting (:ghpull:`459`).
+
 Version 4.3
 ```````````
 
@@ -274,4 +336,3 @@ Moves and forks
   to call the new fork Pexpected. Noah Spurrier agreed to let them use
   the name Pexpect, so Pexpect versions 3 and above are based on this
   fork, which now lives `here on Github <https://github.com/pexpect/pexpect>`_.
-

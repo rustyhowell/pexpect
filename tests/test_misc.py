@@ -52,6 +52,15 @@ class TestCaseMisc(PexpectTestCase.PexpectTestCase):
             return 'skip'
         assert child.isatty()
 
+    def test_isatty_poll(self):
+        " Test isatty() is True after spawning process on most platforms. "
+        child = pexpect.spawn('cat', use_poll=True)
+        if not child.isatty() and sys.platform.lower().startswith('sunos'):
+            if hasattr(unittest, 'SkipTest'):
+                raise unittest.SkipTest("Not supported on this platform.")
+            return 'skip'
+        assert child.isatty()
+
     def test_read(self):
         " Test spawn.read by calls of various size. "
         child = pexpect.spawn('cat')
@@ -64,6 +73,25 @@ class TestCaseMisc(PexpectTestCase.PexpectTestCase):
         self.assertEqual(child.read(2), b'\r\n')
         remaining = child.read().replace(_CAT_EOF, b'')
         self.assertEqual(remaining, b'abc\r\n')
+
+    def test_read_poll(self):
+        " Test spawn.read by calls of various size. "
+        child = pexpect.spawn('cat', use_poll=True)
+        child.sendline("abc")
+        child.sendeof()
+        self.assertEqual(child.read(0), b'')
+        self.assertEqual(child.read(1), b'a')
+        self.assertEqual(child.read(1), b'b')
+        self.assertEqual(child.read(1), b'c')
+        self.assertEqual(child.read(2), b'\r\n')
+        remaining = child.read().replace(_CAT_EOF, b'')
+        self.assertEqual(remaining, b'abc\r\n')
+
+    def test_read_poll_timeout(self):
+        " Test use_poll properly times out "
+        child = pexpect.spawn('sleep 5', use_poll=True)
+        with self.assertRaises(pexpect.TIMEOUT):
+            child.expect(pexpect.EOF, timeout=1)
 
     def test_readline_bin_echo(self):
         " Test spawn('echo'). "
@@ -148,7 +176,7 @@ class TestCaseMisc(PexpectTestCase.PexpectTestCase):
             p.sendline(b'alpha')
             p.expect(b'<out>alpha')
             assert p.isalive()
-        
+
         assert not p.isalive()
 
     def test_terminate(self):
@@ -271,7 +299,7 @@ class TestCaseMisc(PexpectTestCase.PexpectTestCase):
         expected_output = '{0}:'.format(searcher.__name__)
         idx = 0
         for word in given_words:
-            expected_output += fmt.format(idx, '"{0}"'.format(word))
+            expected_output += fmt.format(idx, "'{0}'".format(word))
             idx += 1
         if plus is not None:
             if plus == pexpect.EOF:
@@ -343,4 +371,3 @@ if __name__ == '__main__':
     unittest.main()
 
 suite = unittest.makeSuite(TestCaseMisc,'test')
-

@@ -34,14 +34,14 @@ for patterns from file descriptors or subprocesses—are also available on
 Windows.
 """
 
-setup (name='pexpect',
+setup(name='pexpect',
     version=version,
     packages=['pexpect'],
     package_data={'pexpect': ['bashrc.sh']},
     description='Pexpect allows easy control of interactive console applications.',
     long_description=long_description,
     author='Noah Spurrier; Thomas Kluyver; Jeff Quast',
-    author_email='noah@noah.org; thomas@kluyver.me.uk; contact@jeffquast.com',
+    author_email='noah@noah.org, thomas@kluyver.me.uk, contact@jeffquast.com',
     url='https://pexpect.readthedocs.io/',
     license='ISC license',
     platforms='UNIX',
